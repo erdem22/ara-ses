@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14110f">
+<title>Ara Ses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>try{var t=localStorage.getItem('araSes.theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Ara Ses</h1>
+    <p class="sub">YouTube kayıtlarından seçilmiş bölümler</p>
+  </div>
+  <button id="themeBtn" class="icon-btn" type="button" aria-label="Temayı değiştir" title="Açık / koyu mod">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path class="moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/><g class="sun"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
+  </button>
+</header>
+
+<main class="wrap">
+  <section class="stage" aria-label="Oynatıcı">
+    <div class="video"><div id="player"></div><div id="placeholder" class="placeholder">Dinlemek için listeden bir parçaya dokunun</div></div>
+    <div id="notice" class="notice" hidden></div>
+  </section>
+
+  <section class="list-head">
+    <div>
+      <h2>Parçalar</h2>
+      <p id="summary" class="muted"></p>
+    </div>
+    <label class="sort">Sırala
+      <select id="sortSel">
+        <option value="order">Liste sırası</option>
+        <option value="title">Parça adı</option>
+        <option value="artist">Sanatçı</option>
+      </select>
+    </label>
+  </section>
+
+  <ol id="trackList" class="tracks"></ol>
+
+  <details class="add" id="addBox">
+    <summary>Parça ekle</summary>
+    <form id="addForm" novalidate>
+      <div class="grid">
+        <label>Parça adı<input name="title" required autocomplete="off"></label>
+        <label>Sanatçı<input name="artist" required autocomplete="off"></label>
+        <label>Ana enstrüman<input name="instrument" placeholder="Belirtilmedi" autocomplete="off"></label>
+        <label class="wide">YouTube bağlantısı<input name="url" required inputmode="url" placeholder="https://youtu.be/…?t=120" autocomplete="off"></label>
+        <label>Başlangıç<input name="start" placeholder="2:05, 125 veya bağlantı" autocomplete="off"></label>
+        <label>Bitiş<input name="end" required placeholder="5:40, 340 veya bağlantı" autocomplete="off"></label>
+      </div>
+      <p class="hint">Başlangıç boş kalırsa YouTube bağlantısındaki zaman damgası, o da yoksa 0 kullanılır. Eklenen parçalar yalnızca bu tarayıcıda saklanır.</p>
+      <p id="formMsg" class="form-msg" role="status"></p>
+      <button type="submit" class="primary">Listeye ekle</button>
+    </form>
+  </details>
+</main>
+
+<footer class="bar" id="bar" aria-label="Oynatma kontrolleri">
+  <div class="now">
+    <div class="now-text">
+      <strong id="nowTitle">Parça seçilmedi</strong>
+      <span id="nowMeta" class="muted"></span>
+    </div>
+    <a id="ytLink" class="yt-link" href="#" target="_blank" rel="noopener" hidden>YouTube’da aç</a>
+  </div>
+  <div class="seek">
+    <span id="elapsed" class="time">0:00</span>
+    <input id="seek" type="range" min="0" max="0" step="1" value="0" aria-label="Bölüm içinde konum" disabled>
+    <span id="total" class="time">0:00</span>
+  </div>
+  <div class="controls">
+    <button id="prevBtn" class="ctl" type="button" aria-label="Önceki parça"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+    <button id="restartBtn" class="ctl" type="button" aria-label="Başa al"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button>
+    <button id="playBtn" class="ctl play" type="button" aria-label="Oynat"><svg viewBox="0 0 24 24"><path class="i-play" d="M8 5v14l11-7z"/><path class="i-pause" d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+    <button id="stopBtn" class="ctl" type="button" aria-label="Durdur"><svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></button>
+    <button id="nextBtn" class="ctl" type="button" aria-label="Sonraki parça"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+  </div>
+  <label class="auto"><input type="checkbox" id="autoNext"> Bitince sıradakine geç</label>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
