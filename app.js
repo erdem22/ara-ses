@@ -527,11 +527,11 @@
         if (from === target) from.tracks[idx] = data;
         else { from.tracks.splice(idx, 1); target.tracks.push(data); if (from === activeList()) resetBar(); }
       } else target.tracks.push(data);
-      msg('wMsg', '“' + title + '” güncellendi (' + target.name + ').');
+      msg('wMsg', '“' + title + '” güncellendi → ' + target.name + '.');
       exitEdit();
     } else {
       target.tracks.push(data);
-      msg('wMsg', '“' + title + '” ' + target.name + ' listesine eklendi (' + fmt(data.end - data.start) + ').');
+      msg('wMsg', '“' + title + '” eklendi (' + fmt(data.end - data.start) + ') → ' + target.name + '. Aynı videodan sonraki bölüm için başlangıç bu bitişe ayarlandı.');
     }
     persist(); fillListSelect(target.id); $('wNewList').value = '';
     // aynı videodan sonraki bölüm için: başlangıcı eski bitişe taşı
