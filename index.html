@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="style.css">
 <script>try{var t=localStorage.getItem('araSes.theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
-<body>
+<body data-view="dinle">
 <header class="top">
   <div class="brand">
     <h1>Ara Ses</h1>
@@ -22,44 +22,126 @@
   </button>
 </header>
 
+<nav class="tabs" aria-label="Sayfalar">
+  <a href="#dinle" class="tab" data-tab="dinle">Dinle</a>
+  <a href="#calisma" class="tab" data-tab="calisma">Çalışma</a>
+</nav>
+
 <main class="wrap">
   <section class="stage" aria-label="Oynatıcı">
     <div class="video"><div id="player"></div><div id="placeholder" class="placeholder">Dinlemek için listeden bir parçaya dokunun</div></div>
     <div id="notice" class="notice" hidden></div>
   </section>
 
-  <section class="list-head">
-    <div>
-      <h2>Parçalar</h2>
-      <p id="summary" class="muted"></p>
+  <!-- ============ DİNLE ============ -->
+  <section id="view-dinle" class="view">
+    <div class="listbar">
+      <label class="field grow">Liste
+        <select id="listSel"></select>
+      </label>
+      <div class="btn-row">
+        <button type="button" class="btn" id="newListBtn">Yeni liste</button>
+        <button type="button" class="btn" id="renameListBtn">Yeniden adlandır</button>
+        <button type="button" class="btn danger" id="deleteListBtn">Listeyi sil</button>
+      </div>
     </div>
-    <label class="sort">Sırala
-      <select id="sortSel">
-        <option value="order">Liste sırası</option>
-        <option value="title">Parça adı</option>
-        <option value="artist">Sanatçı</option>
-      </select>
-    </label>
+
+    <div class="list-head">
+      <p id="summary" class="muted"></p>
+      <label class="sort">Sırala
+        <select id="sortSel">
+          <option value="order">Liste sırası</option>
+          <option value="title">Parça adı</option>
+          <option value="artist">Sanatçı</option>
+        </select>
+      </label>
+    </div>
+
+    <ol id="trackList" class="tracks"></ol>
+    <div id="emptyList" class="empty" hidden>
+      <p>Bu liste boş.</p>
+      <a href="#calisma" class="btn primary">Çalışma sayfasında parça hazırla</a>
+    </div>
+
+    <details class="data-box">
+      <summary>Yedekle ya da başka cihaza taşı</summary>
+      <p class="hint">Listeler yalnızca bu tarayıcıda saklanır. Telefona taşımak için burada dışa aktarın, telefonda içe aktarın.</p>
+      <div class="btn-row">
+        <button type="button" class="btn" id="exportBtn">Dışa aktar (.json)</button>
+        <button type="button" class="btn" id="copyBtn">Panoya kopyala</button>
+        <label class="btn file-btn">İçe aktar<input type="file" id="importFile" accept="application/json,.json"></label>
+      </div>
+      <details class="paste">
+        <summary>Metin yapıştırarak içe aktar</summary>
+        <textarea id="importText" rows="4" placeholder="Dışa aktarılan JSON metnini buraya yapıştırın"></textarea>
+        <button type="button" class="btn" id="importTextBtn">İçe aktar</button>
+      </details>
+      <p id="dataMsg" class="form-msg" role="status"></p>
+    </details>
   </section>
 
-  <ol id="trackList" class="tracks"></ol>
+  <!-- ============ ÇALIŞMA ============ -->
+  <section id="view-calisma" class="view" hidden>
+    <ol class="steps">
+      <li class="step">
+        <h2><span class="num">1</span> Kaynak</h2>
+        <form id="srcForm" class="src" novalidate>
+          <input id="srcUrl" inputmode="url" autocomplete="off" placeholder="YouTube video ya da oynatma listesi bağlantısı">
+          <button type="submit" class="btn primary">Aç</button>
+        </form>
+        <p class="hint">YouTube veya YouTube Music bağlantısı olabilir. Oynatma listesi bağlantısı verirseniz listedeki videolardan birini seçersiniz. Liste herkese açık ya da liste dışı olmalı.</p>
+        <div id="plBox" class="pl" hidden>
+          <div class="pl-head"><strong id="plTitle">Oynatma listesi</strong><span id="plCount" class="muted"></span></div>
+          <ol id="plItems" class="pl-items"></ol>
+        </div>
+      </li>
 
-  <details class="add" id="addBox">
-    <summary>Parça ekle</summary>
-    <form id="addForm" novalidate>
-      <div class="grid">
-        <label>Parça adı<input name="title" required autocomplete="off"></label>
-        <label>Sanatçı<input name="artist" required autocomplete="off"></label>
-        <label>Ana enstrüman<input name="instrument" placeholder="Belirtilmedi" autocomplete="off"></label>
-        <label class="wide">YouTube bağlantısı<input name="url" required inputmode="url" placeholder="https://youtu.be/…?t=120" autocomplete="off"></label>
-        <label>Başlangıç<input name="start" placeholder="2:05, 125 veya bağlantı" autocomplete="off"></label>
-        <label>Bitiş<input name="end" required placeholder="5:40, 340 veya bağlantı" autocomplete="off"></label>
-      </div>
-      <p class="hint">Başlangıç boş kalırsa YouTube bağlantısındaki zaman damgası, o da yoksa 0 kullanılır. Eklenen parçalar yalnızca bu tarayıcıda saklanır.</p>
-      <p id="formMsg" class="form-msg" role="status"></p>
-      <button type="submit" class="primary">Listeye ekle</button>
-    </form>
-  </details>
+      <li class="step">
+        <h2><span class="num">2</span> Bölüm</h2>
+        <div class="clock"><span id="wNow">0:00</span><span class="muted" id="wDur"></span></div>
+        <div class="nudge" role="group" aria-label="Video konumu">
+          <button type="button" class="btn" data-nudge="-10">−10</button>
+          <button type="button" class="btn" data-nudge="-1">−1</button>
+          <button type="button" class="btn primary" id="wPlay">Oynat</button>
+          <button type="button" class="btn" data-nudge="1">+1</button>
+          <button type="button" class="btn" data-nudge="10">+10</button>
+        </div>
+        <div class="marks">
+          <div class="mark">
+            <label class="field">Başlangıç<input id="wStart" autocomplete="off" placeholder="0:00"></label>
+            <button type="button" class="btn" id="setStart">Şu an</button>
+            <button type="button" class="btn ghost" id="goStart" aria-label="Başlangıca git">Git</button>
+          </div>
+          <div class="mark">
+            <label class="field">Bitiş<input id="wEnd" autocomplete="off" placeholder="3:00"></label>
+            <button type="button" class="btn" id="setEnd">Şu an</button>
+            <button type="button" class="btn ghost" id="goEnd" aria-label="Bitişin 5 saniye öncesine git">Son 5 sn</button>
+          </div>
+        </div>
+        <p class="hint">Değerler saniye (125), dakika:saniye (2:05) ya da zaman damgalı bağlantı olabilir. <strong id="wLen"></strong></p>
+        <button type="button" class="btn" id="wPreview">Bölümü baştan sona dinle</button>
+      </li>
+
+      <li class="step">
+        <h2><span class="num">3</span> Kaydet</h2>
+        <div class="grid">
+          <label class="field">Parça adı<input id="wTitle" autocomplete="off"></label>
+          <label class="field">Sanatçı<input id="wArtist" autocomplete="off"></label>
+          <label class="field">Ana enstrüman<input id="wInst" autocomplete="off" placeholder="Belirtilmedi"></label>
+          <label class="field">Liste<select id="wList"></select></label>
+        </div>
+        <div id="newListInline" class="inline" hidden>
+          <label class="field grow">Yeni listenin adı<input id="wNewList" autocomplete="off"></label>
+        </div>
+        <p id="wMsg" class="form-msg" role="status"></p>
+        <div class="btn-row">
+          <button type="button" class="btn primary" id="wSave">Listeye ekle</button>
+          <button type="button" class="btn" id="wSaveNew" hidden>Yeni parça olarak ekle</button>
+          <button type="button" class="btn ghost" id="wReset">Temizle</button>
+        </div>
+      </li>
+    </ol>
+  </section>
 </main>
 
 <footer class="bar" id="bar" aria-label="Oynatma kontrolleri">
@@ -84,6 +166,18 @@
   </div>
   <label class="auto"><input type="checkbox" id="autoNext"> Bitince sıradakine geç</label>
 </footer>
+
+<dialog id="dlg">
+  <form method="dialog" id="dlgForm">
+    <h3 id="dlgTitle"></h3>
+    <p id="dlgText" class="muted"></p>
+    <input id="dlgInput" autocomplete="off">
+    <div class="btn-row end">
+      <button value="cancel" class="btn ghost" formnovalidate>Vazgeç</button>
+      <button value="ok" class="btn primary" id="dlgOk">Tamam</button>
+    </div>
+  </form>
+</dialog>
 
 <script src="app.js"></script>
 </body>
